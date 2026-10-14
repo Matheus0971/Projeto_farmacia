@@ -1,56 +1,20 @@
-from datetime import datetime
-import random
-from model import SessionLocal, Farmaceutico, Cliente, Venda
+"""Carga de teste: mil autores e 100 mil livros, para o indice ter o que medir."""
+import time
+from sqlalchemy import delete, insert, text
+from banco import Sessao
+from model import Produto, Farmaceutico
 
-def popular_banco():
-    session = SessionLocal()
+with Sessao() as sessao:
+    sessao.execute(delete(Produto).where(Produto.rotulo.like("Carga %")))
+    sessao.execute(delete(Farmaceutico).where(Farmaceutico.nome.like("Farmaceutico %")))
 
-    try:
-        # 1. Inserir Farmacêuticos
-        farmaceuticos = [
-            Farmaceutico(nome="Ana Silva", crf="CRF/SP 12345"),
-            Farmaceutico(nome="Carlos Oliveira", crf="CRF/SP 67890"),
-            Farmaceutico(nome="Mariana Costa", crf="CRF/RJ 11223"),
-        ]
-        session.add_all(farmaceuticos)
-        session.commit()
+    farmaceuticos = [{"nome": f"Farmaceutico {n}", "idade": f"idade {n}"} for n in range(20)]
+    ids = sessao.scalars(insert(Farmaceutico).returning(Farmaceutico.id), farmaceuticos).all()
 
-        # 2. Inserir Clientes
-        clientes = [
-            Cliente(nome="João Pedro", cpf="111.222.333-01"),
-            Cliente(nome="Maria Souza", cpf="222.333.444-02"),
-            Cliente(nome="Lucas Ferreira", cpf="333.444.555-03"),
-            Cliente(nome="Fernanda Lima", cpf="444.555.666-04"),
-            Cliente(nome="Beatriz Rocha", cpf="555.666.777-05"),
-        ]
-        session.add_all(clientes)
-        session.commit()
-
-        # 3. Inserir pelo menos 20 Vendas relacionando Farmacêuticos e Clientes
-        vendas = []
-        for i in range(20):
-            f_escolhido = random.choice(farmaceuticos)
-            c_escolhido = random.choice(clientes)
-            valor = round(random.uniform(15.0, 350.0), 2)
-
-            venda = Venda(
-                valor_total=valor,
-                farmaceutico_id=f_escolhido.id,
-                cliente_id=c_escolhido.id,
-                data_venda=datetime.now()
-            )
-            vendas.append(venda)
-
-        session.add_all(vendas)
-        session.commit()
-
-        print(f"Banco populado com sucesso! {len(vendas)} vendas cadastradas.")
-
-    except Exception as e:
-        session.rollback()
-        print(f"Erro ao popular banco: {e}")
-    finally:
-        session.close()
-
-if __name__ == "__main__":
-    popular_banco()
+    produtos = [{"rotulo": f"Carga {n}", "ano": 2000, "farmaceutico_id": ids[n % 20]}
+              for n in range(100)]
+    inicio = time.perf_counter()
+    sessao.execute(insert(Produto), produtos)
+    sessao.commit()
+    print(f"100 mil produtos gravados em {time.perf_counter() - inicio:.1f} s")
+    sessao.execute(text("ANALYZE produtos")) # examina o conteúdo da tabela especificada (amostras de linhas, distribuição de valores, cardinalidade e valores nulos) e armazena essas métricas nas tabelas de catálogo interno do banco  
