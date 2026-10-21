@@ -17,4 +17,4 @@ with Sessao() as sessao:
     sessao.execute(insert(Produto), produtos)
     sessao.commit()
     print(f"100 mil produtos gravados em {time.perf_counter() - inicio:.1f} s")
-    sessao.execute(text("ANALYZE produtos")) # examina o conteúdo da tabela especificada (amostras de linhas, distribuição de valores, cardinalidade e valores nulos) e armazena essas métricas nas tabelas de catálogo interno do banco  
+    sessao.execute(text("ANALYZE produtos")) #
