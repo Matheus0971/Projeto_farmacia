@@ -9,8 +9,7 @@ Pergunta: Qual funcionário vendeu mais?
 Proposta: Farmácia. Tabelas `farmaceuticos`, `produtos` e `vendas`, ligadas por `farmaceutico_id` e `produto_id`.
 
 ## E1 - O banco e o Model do seu negócio:  
-<img width="629" height="139" alt="image" src="https://github.com/user-attachments/assets/0c9ec3b8-9655-423c-a166-a5111f2ad6ed" />
-consulta sobre registro de vendas e top 5 vendas realizadas.
+
 
 ## Como rodar o projeto
 1. Instale as dependências:
