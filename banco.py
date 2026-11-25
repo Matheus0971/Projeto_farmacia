@@ -5,10 +5,13 @@ from sqlalchemy.orm import sessionmaker
 
 load_dotenv()
 
-SERVIDOR = (f"postgresql+psycopg://{os.environ['PGUSER']}:{os.environ['PGPASSWORD']}"
-            f"@{os.environ['PGHOST']}:{os.environ['PGPORT']}")
+SERVIDOR = (
+    f"postgresql+psycopg://{os.environ['PGUSER']}:{os.environ['PGPASSWORD']}"
+    f"@{os.environ['PGHOST']}:{os.environ['PGPORT']}"
+)
 
-URL = SERVIDOR + "/farmacia"
+BANCO = os.environ.get("PGDATABASE", "farmacia")
+URL = f"{SERVIDOR}/{BANCO}"
 
 engine = create_engine(URL, echo=False)
 Sessao = sessionmaker(bind=engine)
